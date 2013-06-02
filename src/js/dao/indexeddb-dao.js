@@ -99,8 +99,9 @@ app.dao.IndexedDbDAO = function(window) {
 	};
 
 	/**
-	 * Read a single item by its key	 
+	 * Read a single item by query
 	 * @param type [String] The type of item e.g. 'email'
+	 * @param query [Object] The query used to filter correct objects
 	 */
 	this.find = function(type, query, callback) {
 		var trans = idb.transaction([type], 'readwrite');
@@ -135,20 +136,23 @@ app.dao.IndexedDbDAO = function(window) {
 	/**
 	 * List all the items of a certain type
 	 * @param type [String] The type of item e.g. 'email'
+	 * @param query [Object] The query used to filter correct objects
 	 * @param offset [Number] The offset of items to fetch (0 is the last stored item)
 	 * @param num [Number] The number of items to fetch (null means fetch all)
 	 */
-	this.list = function(type, offset, num, callback) {
-		var list = [];
+	this.list = function(type, query, offset, num, callback) {
+		var from, to,
+			matching = [],
+			interval = [];
+
 		var trans = idb.transaction([type], 'readwrite');
 		var store = trans.objectStore(type);
 		var countRequest = store.count();
 
 		countRequest.onsuccess = function(e) {
 			var count = e.target.result;
-			var counter = 0;
-			var from = (num) ? count - offset - num : 0;
-			var to = count - 1 - offset;
+			from = (num) ? count - offset - num : 0;
+			to = count - 1 - offset;
 
 			// Get everything in the store;
 			var keyRange = window.IDBKeyRange.lowerBound(0);
@@ -156,15 +160,25 @@ app.dao.IndexedDbDAO = function(window) {
 
 			cursorRequest.onsuccess = function(e) {
 				var cursor = e.target.result;
-				if (cursor && counter >= from && counter <= to) {
-					list.push(cursor.value);
-				}
 				if (cursor) {
+					if (query) {
+						// filter through query
+						for (var key in query) {
+							if (cursor.value[key] === query[key]) {
+								// add matching item to results
+								matching.push(cursor.value);
+							}
+						}
+
+					} else {
+						// no special query required
+						matching.push(cursor.value);
+					}
 					cursor.continue();
+
 				} else {
-					callback(null, list);
+					getInterval();
 				}
-				counter++;
 			};
 
 			cursorRequest.onerror = function(e) {
@@ -175,6 +189,18 @@ app.dao.IndexedDbDAO = function(window) {
 		countRequest.onerror = function(e) {
 			callback(e);
 		};
+
+		function getInterval() {
+			// filter items within requested interval
+			for (var i = 0; i < matching.length; i++) {
+				if (i >= from && i <= to) {
+					interval.push(matching[i]);
+				}
+			}
+
+			matching = null; // free space
+			callback(null, interval);
+		}
 	};
 
 	/**

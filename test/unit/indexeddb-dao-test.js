@@ -64,12 +64,12 @@ asyncTest("List", 4, function() {
 	var mail3 = idbDao_test.testMails[2];
 
 	// test listing the last two
-	idbDao_test.idb.list('email', 0, 2, function(err, res) {
+	idbDao_test.idb.list('email', null, 0, 2, function(err, res) {
 		ok(!err, 'list 2');
 		deepEqual(res, [mail2, mail3]);
 
 		// test listing all
-		idbDao_test.idb.list('email', 0, null, function(err, res) {
+		idbDao_test.idb.list('email', null, 0, null, function(err, res) {
 			ok(!err, 'list all');
 			deepEqual(res, [mail1, mail2, mail3]);
 
@@ -83,7 +83,7 @@ asyncTest("Batch", 3, function() {
 		ok(!err, 'read');
 
 		// test listing all
-		idbDao_test.idb.list('email', 0, null, function(err, res) {
+		idbDao_test.idb.list('email', null, 0, null, function(err, res) {
 			ok(!err, 'list all');
 			deepEqual(res, idbDao_test.testMails);
 
@@ -97,7 +97,7 @@ asyncTest("Remove", 3, function() {
 		ok(!err, 'read');
 
 		// test listing all
-		idbDao_test.idb.list('email', 0, null, function(err, res) {
+		idbDao_test.idb.list('email', null, 0, null, function(err, res) {
 			ok(!err, 'list all');
 			equal(res.length, idbDao_test.testMails.length - 1);
 

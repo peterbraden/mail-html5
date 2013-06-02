@@ -60,8 +60,8 @@ asyncTest("Encrypt list for user", 2, function() {
 });
 
 asyncTest("Store encrypted list", 1, function() {
-	devicestorage_test.storage.storeEcryptedList(devicestorage_test.encryptedList, 'email', function() {
-		ok(true, 'Store encrypted list');
+	devicestorage_test.storage.storeEcryptedList(devicestorage_test.encryptedList, 'email', 'inbox', function(err) {
+		ok(!err, 'Store encrypted list');
 
 		start();
 	});
@@ -75,7 +75,7 @@ asyncTest("List items", 4, function() {
 		num = 6;
 
 	// list encrypted items from storage
-	devicestorage_test.storage.listEncryptedItems('email', offset, num, function(err, encryptedList) {
+	devicestorage_test.storage.listEncryptedItems('email', 'inbox', offset, num, function(err, encryptedList) {
 		ok(!err);
 
 		// decrypt list

@@ -73,7 +73,7 @@ app.dao.EmailDAO = function(_, crypto, devicestorage, cloudstorage, util, keycha
 
 		if (!folder) {
 			// get encrypted items from storage
-			devicestorage.listEncryptedItems('email_' + folderName, offset, num, function(err, encryptedList) {
+			devicestorage.listEncryptedItems('email', folderName, offset, num, function(err, encryptedList) {
 				if (err) {
 					callback(err);
 					return;
@@ -155,7 +155,12 @@ app.dao.EmailDAO = function(_, crypto, devicestorage, cloudstorage, util, keycha
 			// TODO: remove old folder items from devicestorage
 
 			// persist encrypted list in device storage
-			devicestorage.storeEcryptedList(data, 'email_' + folderName, function() {
+			devicestorage.storeEcryptedList(data, 'email', folderName, function(err) {
+				if (err) {
+					callback(err);
+					return;
+				}
+
 				// remove cached folder in account model
 				folder = self.account.get('folders').where({
 					name: folderName

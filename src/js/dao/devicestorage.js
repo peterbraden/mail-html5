@@ -12,12 +12,22 @@ app.dao.DeviceStorage = function(util, crypto, jsonDao, sqlcipherDao) {
 	 * @param list [Array] The list of items to be persisted
 	 * @param type [String] The type of item to be persisted e.g. 'email'
 	 */
-	this.storeEcryptedList = function(list, type, callback) {
+	this.storeEcryptedList = function(list, type, folder, callback) {
 		// nothing to store
 		if (list.length === 0) {
 			callback();
 			return;
 		}
+		// validate
+		if (!folder || typeof folder !== 'string') {
+			callback({errMsg: 'The folder to store into must be specified!'});
+			return;
+		}
+
+		// set folder attribute
+		list.forEach(function(i) {
+			i.folder = folder;
+		});
 
 		jsonDao.batch(type, list, function(err) {
 			callback(err);
@@ -30,9 +40,9 @@ app.dao.DeviceStorage = function(util, crypto, jsonDao, sqlcipherDao) {
 	 * @param offset [Number] The offset of items to fetch (0 is the last stored item)
 	 * @param num [Number] The number of items to fetch (null means fetch all)
 	 */
-	this.listEncryptedItems = function(type, offset, num, callback) {
+	this.listEncryptedItems = function(type, folder, offset, num, callback) {
 		// fetch all items of a certain type from the data-store
-		jsonDao.list(type, offset, num, function(err, encryptedList) {
+		jsonDao.list(type, {folder: folder}, offset, num, function(err, encryptedList) {
 			callback(err, encryptedList);
 		});
 	};

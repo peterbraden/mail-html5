@@ -8,10 +8,10 @@ var emaildao_test = {
 	rsaKeySize: 1024
 };
 
-asyncTest("Init", 3, function() {
+asyncTest("Init", 4, function() {
 	// init dependencies	
 	var util = new cryptoLib.Util(window, uuid);
-	var jsonDao = new app.dao.LawnchairDAO(Lawnchair);
+	var jsonDao = new app.dao.IndexedDbDAO(window);
 	emaildao_test.crypto = new app.crypto.Crypto(window, util);
 	emaildao_test.storage = new app.dao.DeviceStorage(util, emaildao_test.crypto, jsonDao, null);
 	// cloud storage stub
@@ -36,15 +36,20 @@ asyncTest("Init", 3, function() {
 		asymKeySize: emaildao_test.rsaKeySize
 	});
 
-	// clear db before tests
-	jsonDao.clear(function(err) {
-		ok(!err, 'DB cleared. Error status: ' + err);
+	// clear db before test
+	jsonDao.init('data-store', function(err) {
+		ok(!err, 'cleared db');
 
-		emaildao_test.emailDao.init(account, emaildao_test.password, function(err) {
-			ok(!err);
-			equal(emaildao_test.emailDao.account.get('emailAddress'), emaildao_test.user, 'Email DAO Account');
+		jsonDao.clear(function(err) {
+			ok(!err, 'cleared db');
 
-			start();
+			// init email dao
+			emaildao_test.emailDao.init(account, emaildao_test.password, function(err) {
+				ok(!err);
+				equal(emaildao_test.emailDao.account.get('emailAddress'), emaildao_test.user, 'Email DAO Account');
+
+				start();
+			});
 		});
 	});
 });
@@ -64,8 +69,8 @@ asyncTest("Persist test emails", 4, function() {
 				encryptedList[i].sentDate = emaildao_test.list.at(i).get('sentDate');
 			}
 
-			emaildao_test.storage.storeEcryptedList(encryptedList, 'email_inbox', function() {
-				ok(true, 'Store encrypted list');
+			emaildao_test.storage.storeEcryptedList(encryptedList, 'email', 'inbox', function(err) {
+				ok(!err, 'Store encrypted list');
 
 				start();
 			});
