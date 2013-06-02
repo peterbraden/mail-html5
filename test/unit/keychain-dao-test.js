@@ -8,10 +8,10 @@ var keychaindao_test = {
 	rsaKeySize: 512
 };
 
-asyncTest("Init", 2, function() {
+asyncTest("Init", 3, function() {
 	// init dependencies
 	var util = new cryptoLib.Util(window, uuid);
-	var jsonDao = new app.dao.LawnchairDAO(Lawnchair);
+	var jsonDao = new app.dao.IndexedDbDAO(window);
 	var crypto = new app.crypto.Crypto(window, util);
 	// cloud storage stub
 	var cloudstorageStub = {
@@ -27,10 +27,15 @@ asyncTest("Init", 2, function() {
 	ok(keychaindao_test.keychainDao);
 
 	// clear db before test
-	jsonDao.clear(function() {
-		ok(true, 'cleared db');
+	jsonDao.clear(function(err) {
+		ok(!err, 'cleared db');
 
-		start();
+		// init data store
+		jsonDao.init(function(err) {
+			ok(!err, 'init');
+
+			start();
+		});
 	});
 });
 
@@ -68,8 +73,9 @@ asyncTest("Get User Keypair", 2, function() {
 
 asyncTest("Get Public Keys", 2, function() {
 	var pubkeyIds = [{
-		_id: keychaindao_test.keypair.publicKey._id
-	}];
+			_id: keychaindao_test.keypair.publicKey._id
+		}
+	];
 	keychaindao_test.keychainDao.getPublicKeys(pubkeyIds, function(err, pubkeys) {
 		ok(!err);
 		deepEqual(pubkeys[0], keychaindao_test.keypair.publicKey, "Fetch public key");

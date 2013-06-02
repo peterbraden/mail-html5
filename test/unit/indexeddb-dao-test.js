@@ -46,7 +46,9 @@ asyncTest("Put", 3, function() {
 asyncTest("Find", 2, function() {
 	var mail1 = idbDao_test.testMails[0];
 
-	idbDao_test.idb.find('email', {subject: mail1.subject}, function(err, res) {
+	idbDao_test.idb.find('email', {
+		subject: mail1.subject
+	}, function(err, res) {
 		ok(!err, 'read');
 		deepEqual(res, mail1);
 
