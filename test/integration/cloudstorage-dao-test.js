@@ -8,7 +8,7 @@ var cloudstoragedao_test = {
 	rsaKeySize: 1024
 };
 
-asyncTest("Init", 1, function() {
+asyncTest("Init", 2, function() {
 
 	// test keys
 	var pk = "-----BEGIN PUBLIC KEY-----\r\n" +
@@ -33,18 +33,22 @@ asyncTest("Init", 1, function() {
 
 	// init dependencies	
 	cloudstoragedao_test.util = new cryptoLib.Util(window, uuid);
-	var jsonDao = new app.dao.LawnchairDAO(Lawnchair);
+	var jsonDao = new app.dao.IndexedDbDAO(window);
 	cloudstoragedao_test.crypto = new app.crypto.Crypto(window, cloudstoragedao_test.util);
 	cloudstoragedao_test.storage = new app.dao.DeviceStorage(cloudstoragedao_test.util, cloudstoragedao_test.crypto, jsonDao, null);
 	cloudstoragedao_test.cloudstorage = new app.dao.CloudStorage(window, $);
 	cloudstoragedao_test.keychain = new app.dao.KeychainDAO(jsonDao, cloudstoragedao_test.cloudstorage);
 	cloudstoragedao_test.emailDao = new app.dao.EmailDAO(_, cloudstoragedao_test.crypto, cloudstoragedao_test.storage, cloudstoragedao_test.cloudstorage, cloudstoragedao_test.util, cloudstoragedao_test.keychain);
 
-	// clear db before tests
-	jsonDao.clear(function(err) {
-		ok(!err, 'DB cleared. Error status: ' + err);
+	// clear db before test
+	jsonDao.init('data-store', function(err) {
+		ok(!err, 'cleared db');
 
-		start();
+		jsonDao.clear(function(err) {
+			ok(!err, 'cleared db');
+
+			start();
+		});
 	});
 });
 
