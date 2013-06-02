@@ -27,12 +27,11 @@ asyncTest("Init", 3, function() {
 	ok(keychaindao_test.keychainDao);
 
 	// clear db before test
-	jsonDao.clear(function(err) {
+	jsonDao.init('data-store', function(err) {
 		ok(!err, 'cleared db');
 
-		// init data store
-		jsonDao.init(function(err) {
-			ok(!err, 'init');
+		jsonDao.clear(function(err) {
+			ok(!err, 'cleared db');
 
 			start();
 		});

@@ -5,13 +5,12 @@ app.dao.IndexedDbDAO = function(window) {
 	'use strict';
 
 	var idb;
-	var dbName = 'data-store';
 	var version = 1;
 
 	/**
 	 * Initializes the data store.
 	 */
-	this.init = function(callback) {
+	this.init = function(dbName, callback) {
 		var request = window.indexedDB.open(dbName, version);
 
 		// We can only create Object stores in a versionchange transaction.
@@ -199,13 +198,12 @@ app.dao.IndexedDbDAO = function(window) {
 	 * Clears the whole local storage cache
 	 */
 	this.clear = function(callback) {
-		var self = this;
-		var request = window.indexedDB.deleteDatabase(dbName);
-		request.onsuccess = function (e) {
-			callback();
-		};
-		request.onerror = function (e) {
-			callback(e);
+		idb.transaction(['email'], 'readwrite').objectStore('email').clear().onsuccess = function(e) {
+			idb.transaction(['publickey'], 'readwrite').objectStore('publickey').clear().onsuccess = function(e) {
+				idb.transaction(['privatekey'], 'readwrite').objectStore('privatekey').clear().onsuccess = function(e) {
+					callback();
+				};
+			};
 		};
 	};
 

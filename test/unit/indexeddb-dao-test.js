@@ -1,21 +1,23 @@
 module("IndexedDB DAO");
 
-var idbDao_test = {};
+var idbDao_test = {
+	dbName: 'data-store'
+};
 
 // init dependencies
 idbDao_test.idb = new app.dao.IndexedDbDAO(window);
 idbDao_test.testMails = new TestData().getEmailCollection(10).toJSON();
 
-asyncTest("Clear", 1, function() {
-	idbDao_test.idb.clear(function(err) {
+asyncTest("Init", 1, function() {
+	idbDao_test.idb.init(idbDao_test.dbName, function(err) {
 		ok(!err, 'init');
 
 		start();
 	});
 });
 
-asyncTest("Init", 1, function() {
-	idbDao_test.idb.init(function(err) {
+asyncTest("Clear", 1, function() {
+	idbDao_test.idb.clear(function(err) {
 		ok(!err, 'init');
 
 		start();

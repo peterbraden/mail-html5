@@ -13,34 +13,14 @@ app.dao.DeviceStorage = function(util, crypto, jsonDao, sqlcipherDao) {
 	 * @param type [String] The type of item to be persisted e.g. 'email'
 	 */
 	this.storeEcryptedList = function(list, type, callback) {
-		var i, date, key, items = [];
-
 		// nothing to store
 		if (list.length === 0) {
 			callback();
 			return;
 		}
 
-		// format items for batch storing in dao
-		list.forEach(function(i) {
-
-			// put date in key if available... for easy querying
-			if (i.sentDate) {
-				date = util.parseDate(i.sentDate);
-				key = crypto.emailAddress + '_' + type + '_' + date.getTime() + '_' + i.id;
-			} else {
-				key = crypto.emailAddress + '_' + type + '_' + i.id;
-			}
-
-			items.push({
-				key: key,
-				object: i
-			});
-
-		});
-
-		jsonDao.batch(items, function() {
-			callback();
+		jsonDao.batch(type, list, function(err) {
+			callback(err);
 		});
 	};
 
@@ -52,9 +32,8 @@ app.dao.DeviceStorage = function(util, crypto, jsonDao, sqlcipherDao) {
 	 */
 	this.listEncryptedItems = function(type, offset, num, callback) {
 		// fetch all items of a certain type from the data-store
-		jsonDao.list(crypto.emailAddress + '_' + type, offset, num, function(encryptedList) {
-
-			callback(null, encryptedList);
+		jsonDao.list(type, offset, num, function(err, encryptedList) {
+			callback(err, encryptedList);
 		});
 	};
 
