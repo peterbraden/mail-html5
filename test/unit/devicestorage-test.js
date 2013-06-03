@@ -83,15 +83,8 @@ asyncTest("List items", 4, function() {
 			ok(!err);
 			equal(decryptedList.length, num, 'Found ' + decryptedList.length + ' items in store (and decrypted)');
 
-			var decrypted, orig = devicestorage_test.list[92];
-
-			// check ids
-			for (var i = 0; i < decryptedList.length; i++) {
-				if (decryptedList[i].id === orig.id && decryptedList[i].from === orig.from) {
-					deepEqual(decryptedList[i], orig, 'Messages decrypted correctly');
-					break;
-				}
-			}
+			var origSet = devicestorage_test.list.splice(92, num);
+			deepEqual(decryptedList, origSet, 'Messages decrypted correctly');
 
 			start();
 		});

@@ -93,7 +93,8 @@ asyncTest("Batch", 3, function() {
 });
 
 asyncTest("Remove", 3, function() {
-	idbDao_test.idb.remove('email', idbDao_test.testMails[6].sentDate, function(err) {
+	var item = idbDao_test.testMails[6];
+	idbDao_test.idb.remove('email', item.sentDate, function(err) {
 		ok(!err, 'read');
 
 		// test listing all

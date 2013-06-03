@@ -5,7 +5,7 @@ app.dao.IndexedDbDAO = function(window) {
 	'use strict';
 
 	var idb;
-	var version = 1;
+	var version = 2;
 
 	/**
 	 * Initializes the data store.
