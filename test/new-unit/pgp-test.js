@@ -5,6 +5,8 @@ define(function(require) {
         expect = chai.expect;
 
     describe('PGP Crypto Api unit tests', function() {
+        this.timeout(10000);
+
         var pgp,
             user = 'whiteout.test@t-online.de',
             passphrase = 'asdf',
