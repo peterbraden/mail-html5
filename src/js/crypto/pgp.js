@@ -5,15 +5,18 @@ define(function(require) {
     'use strict';
 
     var openpgp = require('openpgp'),
-        util = require('openpgp').util;
+        util = require('openpgp').util,
+        config = require('js/app-config').config;
 
-    var PGP = function() {};
+    var PGP = function() {
+        openpgp.initWorker(config.workerPath + '/../lib/openpgp/openpgp.worker.js');
+    };
 
     /**
      * Generate a key pair for the user
      */
     PGP.prototype.generateKeys = function(options, callback) {
-        var keys, userId;
+        var userId;
 
         if (!util.emailRegEx.test(options.emailAddress) || !options.keySize || typeof options.passphrase !== 'string') {
             callback({
@@ -23,22 +26,24 @@ define(function(require) {
         }
 
         // generate keypair (keytype 1=RSA)
-        try {
-            userId = 'Whiteout User <' + options.emailAddress + '>';
-            keys = openpgp.generateKeyPair(1, options.keySize, userId, options.passphrase);
-        } catch (e) {
-            callback({
-                errMsg: 'Keygeneration failed!',
-                err: e
-            });
-            return;
-        }
+        userId = 'Whiteout User <' + options.emailAddress + '>';
+        openpgp.generateKeyPair(1, options.keySize, userId, options.passphrase, onGenerated);
 
-        callback(null, {
-            keyId: keys.key.getKeyPacket().getKeyId().toHex().toUpperCase(),
-            privateKeyArmored: keys.privateKeyArmored,
-            publicKeyArmored: keys.publicKeyArmored
-        });
+        function onGenerated(err, keys) {
+            if (err) {
+                callback({
+                    errMsg: 'Keygeneration failed!',
+                    err: err
+                });
+                return;
+            }
+
+            callback(null, {
+                keyId: keys.key.getKeyPacket().getKeyId().toHex().toUpperCase(),
+                privateKeyArmored: keys.privateKeyArmored,
+                publicKeyArmored: keys.publicKeyArmored
+            });
+        }
     };
 
     /**
