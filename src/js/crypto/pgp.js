@@ -165,7 +165,7 @@ define(function(require) {
      * Encrypt and sign a pgp message for a list of receivers
      */
     PGP.prototype.encrypt = function(plaintext, publicKeysArmored, callback) {
-        var ciphertext, publicKeys = [];
+        var publicKeys = [];
 
         // check keys
         if (!this._privateKey || publicKeysArmored.length < 1) {
@@ -181,7 +181,7 @@ define(function(require) {
                 publicKeys.push(openpgp.key.readArmored(pubkeyArmored).keys[0]);
             });
             // encrypt and sign the plaintext
-            ciphertext = openpgp.signAndEncryptMessage(publicKeys, this._privateKey, plaintext);
+            openpgp.signAndEncryptMessage(publicKeys, this._privateKey, plaintext, callback);
         } catch (err) {
             callback({
                 errMsg: 'Error encrypting plaintext!',
@@ -189,15 +189,13 @@ define(function(require) {
             });
             return;
         }
-
-        callback(null, ciphertext);
     };
 
     /**
      * Decrypt and verify a pgp message for a single sender
      */
     PGP.prototype.decrypt = function(ciphertext, publicKeyArmored, callback) {
-        var publicKey, message, decrypted, signaturesValid;
+        var publicKey, message, signaturesValid;
 
         // check keys
         if (!this._privateKey || !publicKeyArmored) {
@@ -211,7 +209,7 @@ define(function(require) {
         try {
             publicKey = openpgp.key.readArmored(publicKeyArmored).keys[0];
             message = openpgp.message.readArmored(ciphertext);
-            decrypted = openpgp.decryptAndVerifyMessage(this._privateKey, [publicKey], message);
+            openpgp.decryptAndVerifyMessage(this._privateKey, [publicKey], message, onDecrypted);
         } catch (err) {
             callback({
                 errMsg: 'Error decrypting PGP message!',
@@ -220,22 +218,24 @@ define(function(require) {
             return;
         }
 
-        // check if signatures are valid
-        signaturesValid = true;
-        decrypted.signatures.forEach(function(sig) {
-            if (!sig.valid) {
-                signaturesValid = false;
-            }
-        });
-        if (!signaturesValid) {
-            callback({
-                errMsg: 'Verifying PGP signature failed!'
+        function onDecrypted(err, decrypted) {
+            // check if signatures are valid
+            signaturesValid = true;
+            decrypted.signatures.forEach(function(sig) {
+                if (!sig.valid) {
+                    signaturesValid = false;
+                }
             });
-            return;
-        }
+            if (!signaturesValid) {
+                callback({
+                    errMsg: 'Verifying PGP signature failed!'
+                });
+                return;
+            }
 
-        // return decrypted plaintext
-        callback(null, decrypted.text);
+            // return decrypted plaintext
+            callback(null, decrypted.text);
+        }
     };
 
     return PGP;
