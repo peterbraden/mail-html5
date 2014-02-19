@@ -31,13 +31,22 @@ We take the privacy of your data very seriously. Here are some of the technical 
 
 ### Testing
 
-You can download a prebuilt bundle under [releases](https://github.com/whiteout-io/mail-html5/releases) or build your own from source (requires [node.js and npm](http://nodejs.org/download/)):
+You can download a prebuilt bundle under [releases](https://github.com/whiteout-io/mail-html5/releases) or build your own from source (requires [node.js](http://nodejs.org/download/), [grunt](http://gruntjs.com/getting-started#installing-the-cli) and [sass](http://sass-lang.com/install)):
 
     npm install && npm test
 
 (Requires grunt and sass to be installed)
     
 This will download all dependencies, run the tests and build the Chrome Packaged App bundle **DEV.zip** which can be installed under [chrome://extensions](chrome://extensions) in developer mode.
+
+### Development
+For development you can start a connect dev server:
+
+    grunt dev
+
+Then visit [http://localhost:8580/dist/chrome.html#/desktop](http://localhost:8580/dist/chrome.html#/desktop) for front-end code or [http://localhost:8580/test/new-unit/](http://localhost:8580/test/new-unit/) to test JavaScript changes. You can also start a watch task so you don't have rebuild everytime you make a change:
+
+    grunt watch
 
 ## License
 
