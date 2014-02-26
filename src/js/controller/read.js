@@ -47,6 +47,7 @@ define(function(require) {
 
                 $scope.keyId = formatted;
                 $scope.$apply();
+
             });
         };
 

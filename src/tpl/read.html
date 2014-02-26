@@ -54,6 +54,7 @@
   <!-- popovers -->
   <div id="fingerprint-info" class="popover right" ng-controller="PopoverCtrl">
     <div class="arrow"></div>
+    <canvas class='fingerprint-image' fingerprint-data="{{keyId}}" width="150" height="150"></canvas>
     <div class="popover-content"><b>PGP key:</b> {{keyId}}</div>
   </div><!--/.popover-->
 </div><!--/.view-read-->
